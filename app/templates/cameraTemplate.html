@@ -1,0 +1,153 @@
+<div>
+    <label for="Thread_ON">Generate Frames</label>
+    <input type="range" value="1" min="0" max="1" id="Thread_ON">
+    <button class="button is-light" id="generateButton"></button>
+</div>
+<div>
+    <button class="button is-info is-light" id="showButton"></button>
+    <button class="button is-warning" id="restart">Restart Camera</button>
+    <button class="button is-success" id="turn_on">Turn On Camera</button>
+    <button class="button is-danger" id="turn_off">Shutdown Camera</button>
+    <br /><span id="output"></span>
+</div>
+<img id="webCam" src="" alt="Press reload if no video displays" />
+<script>
+    const send = function(url) {
+        fetch(url).then(response => response.text()).then(data => {
+            output.innerText = data;
+        });
+    }
+    let show = 1;
+    const show_btn = document.getElementById("showButton");
+    show_btn.innerText = "Hide Frames";
+
+    const generate_btn = document.getElementById("generateButton");
+    generate_btn.innerText = "WORKING";
+
+    const slider_camera = document.getElementById("Thread_ON");
+    const restart_btn = document.getElementById("restart");
+    const turnOn_btn = document.getElementById("turn_on");
+    turnOn_btn.style.display = "none";
+
+    const turnOff_btn = document.getElementById("turn_off");
+    const frame = document.getElementById('webCam');
+
+    show_btn.onclick = function() {
+        if (show === 1){
+            show = 0;
+            setTimeout(hideWebCam, 50);
+            show_btn.innerText = "Show Frames";
+        }
+        else {
+            show = 1;
+            show_btn.innerText = "Hide Frames";
+        }
+    }
+
+    generate_btn.onclick = function() {
+        if (slider_camera.value == 1 && generate_btn.innerText === "STOPPED") {
+            output.innerText = "Starting Camera Thread Operation ...";
+            updateGenerateBtnInnerTxt(1);
+            send("/camera/continue");
+            setTimeout(showWebCam, 200);
+            socket.emit('camera_update_event', slider_camera.value.toString());
+        }
+        else if (slider_camera.value == 0 && generate_btn.innerText === "WORKING"){
+            output.innerText = "Closing Camera Thread Operation ...";
+            updateGenerateBtnInnerTxt(0) ;
+            send("/camera/stop");
+            setTimeout(hideWebCam, 50);
+            socket.emit('camera_update_event', slider_camera.value.toString());
+        }
+    }
+    restart_btn.onclick = function() {
+        output.innerText = "Performing Camera Restart...";
+        updateCameraSliderValue(0)
+        setTimeout(hideWebCam, 50);
+        send("/camera/reset");
+        setTimeout(showWebCam, 200);
+        updateCameraSliderValue(1)
+        turnOn_btn.style.display = "none";
+        turnOff_btn.style.display = "inline-block";
+        socket.emit('camera_update_event', slider_camera.value.toString());
+    }
+    turnOn_btn.onclick = function() {
+        output.innerText = "Performing Camera Activation...";
+        send("/camera/on");
+        setTimeout(showWebCam, 200);
+        updateCameraSliderValue(1)
+        turnOn_btn.style.display = "none";
+        turnOff_btn.style.display = "inline-block";
+        socket.emit('camera_update_event', slider_camera.value.toString());
+    }
+    turnOff_btn.onclick = function() {
+        output.innerText = "Performing Camera Close...";
+        updateCameraSliderValue(0)
+        send("/camera/off");
+        setTimeout(hideWebCam, 50);
+        turnOn_btn.style.display = "inline-block";
+        turnOff_btn.style.display = "none";
+        socket.emit('camera_update_event', slider_camera.value.toString());
+    }
+    function showWebCam() {
+        if (show === 1){
+        frame.src="{{ url_for('main.cameraFrame') }}";
+        frame.alt = "Press reload if no video displays";
+        }
+        else {
+            frame.alt="Click on Show Image to see the frames...";
+        }
+        setTimeout(hideHelpText, 1500);
+    }
+    function hideWebCam() {
+        frame.src="";
+        setTimeout(hideHelpText, 1500);
+    }
+
+    function hideHelpText(){
+        output.innerText = "";
+    }
+
+    function loopFunction(delay, callback){
+        const loop = function(){
+            callback();
+            setTimeout(loop, delay);
+        }; loop();
+    }
+    
+    function updateCameraSliderValue(value) {
+        slider_camera.value = value;
+        $("#Thread_ON").trigger('change');
+        updateGenerateBtnInnerTxt(value);
+    }
+
+    function updateGenerateBtnInnerTxt(value){
+        if (value != 1) {
+            generate_btn.innerText = "STOPPED";
+        } else {
+            generate_btn.innerText = "WORKING";
+        }
+    }
+
+    socket.on('camera_update_response', function(response) {
+        console.log("Camera changed: ", response.camStatus);
+        updateCameraSliderValue(parseInt(JSON.parse(response.camStatus)));
+    })
+
+    $(function() {
+        {% if data.camStatus %}
+            updateCameraSliderValue(parseInt(JSON.parse('{{ data.camStatus | tojson | safe }}')));
+        {% endif %}
+
+        loopFunction(500, function(){
+            if (show === 1) {
+                if (generate_btn.innerText === "WORKING") {
+                    frame.src = "{{ url_for('main.cameraFrame') }}" + "?" + new Date().getTime();
+                } else {
+                    frame.src = "{{ url_for('main.cameraError') }}" + "?" + new Date().getTime();
+                }
+            }
+        });
+    });
+
+</script>
