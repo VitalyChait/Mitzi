@@ -17,10 +17,10 @@ def checkVideoPort():
     if isdir(getcwd() + "/app/hardware/bashScripts"):
         scriptDirPath = getcwd() + "/app/hardware/bashScripts/"
     else:
-        scriptDirPath = "/home/orangepi/motorProject/app/hardware/bashScripts/"
+        scriptDirPath = "/home/orangepi/mitziProject/app/hardware/bashscripts/"
     camerascript = scriptDirPath + "camerachecker.sh"
     if not isfile(camerascript):
-        print("ERROR FINDING MOTOR ONE SCRIPT")
+        print("ERROR FINDING CAMERA SCRIPT")
         print(camerascript)
         exit()
 

@@ -5,7 +5,7 @@ from flask_login import LoginManager
 from flask_socketio import SocketIO
 
 
-DUMMY = True
+DUMMY = False
 
 
 def init_video_port():
@@ -33,8 +33,8 @@ def init_controller():
         motor_settings = {"x": True,
                           "y": True,
                           "z": True,
-                          "xStepCount": 50,
-                          "yStepCount": 50,
+                          "xStepCount": 200,
+                          "yStepCount": 200,
                           "zStepCount": 200}
         return MotorController(**motor_settings)
     else:
@@ -42,8 +42,8 @@ def init_controller():
         motor_settings = {"x": True,
                           "y": True,
                           "z": True,
-                          "xStepCount": 50,
-                          "yStepCount": 50,
+                          "xStepCount": 200,
+                          "yStepCount": 200,
                           "zStepCount": 200}
         return DummyMotorController(**motor_settings)
 
@@ -65,7 +65,7 @@ def create_app(debug=False):
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
     app.config['TEMPLATES_AUTO_RELOAD'] = True
     app.config['DEBUG'] = debug
-    app.config['THREADED'] = True
+    app.config['THREADED'] = False
 
     db.init_app(app)
 

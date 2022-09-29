@@ -147,13 +147,16 @@ def setx(value):
         value = int(value)
     except ValueError:
         return "Error"
+    print(value)
     old_value = controller.getXPos()
-    value = value % controller.getXStepCount()
+    if value >= controller.getXStepCount() or value < 0:
+        value = value % controller.getXStepCount()
     delta = value - old_value
     if delta != 0:
+        print("New value: ", value, "  Moving: ", delta)
         if delta > 0:
             controller.xfw(delta)
-        elif value < 0:
+        else:
             controller.xbw(-delta)
 
     if old_value != controller.getXPos():
@@ -169,12 +172,14 @@ def sety(value):
     except ValueError:
         return "Error"
     old_value = controller.getYPos()
-    value = value % controller.getYStepCount()
+    if value >= controller.getYStepCount() or value < 0:
+        value = value % controller.getYStepCount()
     delta = value - old_value
     if delta != 0:
+        print("New value: ", value, "  Moving: ", delta)
         if delta > 0:
             controller.yfw(delta)
-        elif value < 0:
+        else:
             controller.ybw(-delta)
 
     if old_value != controller.getYPos():
@@ -189,13 +194,16 @@ def setz(value):
         value = int(value)
     except ValueError:
         return "Error"
+    print(value)
     old_value = controller.getZPos()
-    value = value % controller.getZStepCount()
+    if value >= controller.getZStepCount() or value < 0:
+        value = value % controller.getZStepCount()
     delta = value - old_value
     if delta != 0:
+        print("New value: ", value, "  Moving: ", delta)
         if delta > 0:
             controller.zfw(delta)
-        elif value < 0:
+        else:
             controller.zbw(-delta)
     if old_value != controller.getZPos():
         return "Done moving"
