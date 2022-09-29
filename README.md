@@ -10,3 +10,4 @@ Requirments:
 * eventlet 
 
 <a href="https://ibb.co/KsbZy4L"><img src="https://i.ibb.co/YdP9jny/application.png" alt="application" border="0" /></a>
+<a href="https://ibb.co/crz6jFf"><img src="https://i.ibb.co/717nqWM/Structure.png" alt="Structure" border="0" /></a>
