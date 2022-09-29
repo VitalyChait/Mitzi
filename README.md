@@ -9,4 +9,4 @@ Requirments:
 * Python OpenCV (cv2)
 * eventlet 
 
-![Application Printscreen](https://imgbb.com/KsbZy4L)
+[url=https://ibb.co/KsbZy4L][img]https://i.ibb.co/YdP9jny/application.png[/img][/url]
