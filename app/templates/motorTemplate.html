@@ -1,0 +1,122 @@
+<div>
+    <br /><label for="slider_x">Motor x </label>
+    <input type="range" value="0" max="{{ data.xStepCount }}" id="slider_x">
+    <button id="setx">Set</button>
+    <br /> <span id="output_x"></span>
+</div>
+<div>
+    <br /><label for="slider_y">Motor Y</label>
+    <input type="range" value="0" max="{{ data.yStepCount }}" id="slider_y">
+    <button id="sety">Set</button>
+    <br /> <span id="output_y"></span>
+</div>
+<div>
+    <br /><label for="slider_z">Motor Z </label>
+    <input type="range" value="0" max="{{ data.zStepCount }}" id="slider_z">
+    <button id="setz">Set</button>
+    <br /> <span id="output_z"></span>
+</div>
+
+<script>
+    const slider_x = document.getElementById("slider_x");
+    const output_x = document.getElementById("output_x");
+    const slider_y = document.getElementById("slider_y");
+    const output_y = document.getElementById("output_y");
+    const slider_z = document.getElementById("slider_z");
+    const output_z = document.getElementById("output_z");
+
+    let prev_value_x = 0;
+    let prev_value_y = 0;
+    let prev_value_z = 0;
+
+    const send_x_motor_command = function(url) {
+        fetch(url).then(response => response.text()).then(data => {
+            output_x.innerText = data;
+        });
+    }
+    const send_y_motor_command = function(url) {
+        fetch(url).then(response => response.text()).then(data => {
+            output_y.innerText = data;
+        });
+    }
+    const send_z_motor_command = function(url) {
+        fetch(url).then(response => response.text()).then(data => {
+            output_z.innerText = data;
+        });
+    }
+
+    const set_btn_x = document.getElementById("setx");
+    const set_btn_y = document.getElementById("sety");
+    const set_btn_z = document.getElementById("setz");
+
+    set_btn_x.onclick = function() {
+        if ((slider_x.value - prev_value_x) != 0) {
+            output_x.innerText = "Performing operation X...";
+            send_x_motor_command("/motor/set/x/" + (slider_x.value));
+            prev_value_x = slider_x.value;
+            socket.emit('motor_update_event', {xPos: prev_value_x.toString(), yPos: prev_value_y.toString(), zPos: prev_value_z.toString()});
+        }
+    }
+    set_btn_y.onclick = function() {
+        if ((slider_y.value - prev_value_y) != 0) {
+            output_y.innerText = "Performing operation Y...";
+            send_y_motor_command("/motor/set/y/" + (slider_y.value));
+            prev_value_y = slider_y.value;
+            socket.emit('motor_update_event', {xPos: prev_value_x.toString(), yPos: prev_value_y.toString(), zPos: prev_value_z.toString()});
+        }
+    }
+    set_btn_z.onclick = function() {
+        if ((slider_z.value - prev_value_z) != 0) {
+            output_z.innerText = "Performing operation Z...";
+            send_z_motor_command("/motor/set/z/" + (slider_z.value));
+            prev_value_z = slider_z.value;
+            socket.emit('motor_update_event', {xPos: prev_value_x.toString(), yPos: prev_value_y.toString(), zPos: prev_value_z.toString()});
+        }
+    }
+
+    function updateXValue() {
+        if (slider_x.value !== prev_value_x){
+            slider_x.value = prev_value_x;
+            $("#slider_x").trigger('change');
+        }
+    }
+
+    function updateYValue() {
+        if (slider_y.value != prev_value_y) {
+            slider_y.value = prev_value_y;
+            $("#slider_y").trigger('change');
+        }
+    }
+
+    function updateZValue() {
+        if (slider_z.value != prev_value_z) {
+            slider_z.value = prev_value_z;
+            $("#slider_z").trigger('change');
+        }
+    }
+
+    socket.on('motor_update_response', function(response) {
+        console.log("Motor changed: ", response);
+        prev_value_x = parseInt( JSON.parse(response.xPos));
+        updateXValue();
+        prev_value_y = parseInt( JSON.parse(response.yPos));
+        updateYValue();
+        prev_value_z = parseInt( JSON.parse(response.zPos));
+        updateZValue();
+    })
+
+    $(function() {
+        {% if data.xPos %}
+        prev_value_x = parseInt( JSON.parse('{{ data.xPos | tojson | safe }}') );
+        updateXValue();
+        {% endif %}
+        {% if data.yPos %}
+        prev_value_y = parseInt( JSON.parse('{{ data.yPos | tojson | safe }}') );
+        updateYValue();
+        {% endif %}
+        {% if data.zPos %}
+        prev_value_z = parseInt( JSON.parse('{{ data.zPos | tojson | safe }}') );
+        updateZValue();
+        {% endif %}
+    });
+</script>

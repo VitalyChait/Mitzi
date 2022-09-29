@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="title">
+    Welcome, {{ current_user.name }}!
+</h1>
+
+{% include "eventsHandler.html" %}
+{% include "cameraTemplate.html" %}
+{% include "motorTemplate.html" %}
+
+
+{% endblock %}
