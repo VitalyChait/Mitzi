@@ -3,4 +3,9 @@ Pet Tool for SoC
 
 Run (run.py)
 
-Change app.__init__ --> DUMMY = False
+Requirments:
+* Hardware + GPIO interface library (WiringOP or other)
+* flask, werkzeug, flask_login, flask_sqlalchemy, flask_socketio
+* Python OpenCV (cv2)
+* eventlet 
+
